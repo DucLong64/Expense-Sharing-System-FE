@@ -1,4 +1,5 @@
 import { useChangePasswordForm } from '@/features/auth/hooks/use-change-password-form'
+import { useSetPasswordForm } from '@/features/auth/hooks/use-set-password-form'
 import { useCurrentUser } from '@/features/auth/api/auth.query'
 import { AppShell } from '@/shared/components/app-shell'
 import { Button } from '@/shared/components/button'
@@ -10,8 +11,10 @@ import { formatDateTime } from '@/shared/utils/format'
 
 export function ProfilePage() {
   const { data: user, isLoading, error, refetch } = useCurrentUser()
-  const { form, onSubmit, isSubmitting } = useChangePasswordForm()
-  const { register, formState } = form
+  const changePassword = useChangePasswordForm()
+  const setPassword = useSetPasswordForm(() => {
+    void refetch()
+  })
 
   if (isLoading) {
     return (
@@ -58,35 +61,64 @@ export function ProfilePage() {
           </dl>
         </Card>
 
-        <Card title="Đổi mật khẩu" description="Nhập mật khẩu hiện tại và mật khẩu mới.">
-          <form className="space-y-4" onSubmit={onSubmit}>
-            <Input
-              label="Mật khẩu hiện tại"
-              type="password"
-              autoComplete="current-password"
-              error={formState.errors.currentPassword?.message}
-              {...register('currentPassword')}
-            />
-            <Input
-              label="Mật khẩu mới"
-              type="password"
-              autoComplete="new-password"
-              error={formState.errors.newPassword?.message}
-              {...register('newPassword')}
-            />
-            <Input
-              label="Xác nhận mật khẩu mới"
-              type="password"
-              autoComplete="new-password"
-              error={formState.errors.confirmPassword?.message}
-              {...register('confirmPassword')}
-            />
-            <ErrorMessage message={formState.errors.root?.message} />
-            <Button type="submit" loading={isSubmitting}>
-              Cập nhật mật khẩu
-            </Button>
-          </form>
-        </Card>
+        {user.hasPassword ? (
+          <Card title="Đổi mật khẩu" description="Nhập mật khẩu hiện tại và mật khẩu mới.">
+            <form className="space-y-4" onSubmit={changePassword.onSubmit}>
+              <Input
+                label="Mật khẩu hiện tại"
+                type="password"
+                autoComplete="current-password"
+                error={changePassword.form.formState.errors.currentPassword?.message}
+                {...changePassword.form.register('currentPassword')}
+              />
+              <Input
+                label="Mật khẩu mới"
+                type="password"
+                autoComplete="new-password"
+                error={changePassword.form.formState.errors.newPassword?.message}
+                {...changePassword.form.register('newPassword')}
+              />
+              <Input
+                label="Xác nhận mật khẩu mới"
+                type="password"
+                autoComplete="new-password"
+                error={changePassword.form.formState.errors.confirmPassword?.message}
+                {...changePassword.form.register('confirmPassword')}
+              />
+              <ErrorMessage message={changePassword.form.formState.errors.root?.message} />
+              <Button type="submit" loading={changePassword.isSubmitting}>
+                Cập nhật mật khẩu
+              </Button>
+            </form>
+          </Card>
+        ) : (
+          <Card
+            title="Đặt mật khẩu"
+            description="Tài khoản Google chưa có mật khẩu. Đặt mật khẩu để đăng nhập bằng username sau này."
+          >
+            <form className="space-y-4" onSubmit={setPassword.onSubmit}>
+              <Input
+                label="Mật khẩu mới"
+                type="password"
+                autoComplete="new-password"
+                hint="Tối thiểu 8 ký tự."
+                error={setPassword.form.formState.errors.newPassword?.message}
+                {...setPassword.form.register('newPassword')}
+              />
+              <Input
+                label="Xác nhận mật khẩu"
+                type="password"
+                autoComplete="new-password"
+                error={setPassword.form.formState.errors.confirmPassword?.message}
+                {...setPassword.form.register('confirmPassword')}
+              />
+              <ErrorMessage message={setPassword.form.formState.errors.root?.message} />
+              <Button type="submit" loading={setPassword.isSubmitting}>
+                Đặt mật khẩu
+              </Button>
+            </form>
+          </Card>
+        )}
       </div>
     </AppShell>
   )

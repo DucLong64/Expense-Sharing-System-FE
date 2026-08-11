@@ -1,3 +1,4 @@
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from '@/features/auth/hooks/use-auth'
 import { ConfirmProvider } from '@/shared/hooks/use-confirm'
@@ -12,8 +13,10 @@ const queryClient = new QueryClient({
   },
 })
 
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''
+
 export function AppProviders({ children }: { children: React.ReactNode }) {
-  return (
+  const content = (
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
         <ConfirmProvider>
@@ -22,4 +25,10 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       </ToastProvider>
     </QueryClientProvider>
   )
+
+  if (!googleClientId) {
+    return content
+  }
+
+  return <GoogleOAuthProvider clientId={googleClientId}>{content}</GoogleOAuthProvider>
 }
