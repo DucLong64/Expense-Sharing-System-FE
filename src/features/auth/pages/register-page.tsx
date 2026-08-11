@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { GoogleSignInButton } from '@/features/auth/components/google-sign-in-button'
 import { useRegisterForm } from '@/features/auth/hooks/use-register-form'
 import { AuthLayout } from '@/shared/components/auth-layout'
 import { Button } from '@/shared/components/button'
@@ -22,40 +23,47 @@ export function RegisterPage() {
         </>
       }
     >
-      <form className="space-y-4" onSubmit={onSubmit}>
-        <Input
-          label="Họ và tên"
-          autoComplete="name"
-          error={formState.errors.fullName?.message}
-          {...register('fullName')}
-        />
-        <Input
-          label="Username"
-          autoComplete="username"
-          hint="3-30 ký tự, chỉ gồm chữ, số, _ và ."
-          error={formState.errors.username?.message}
-          {...register('username')}
-        />
-        <Input
-          label="Email"
-          type="email"
-          autoComplete="email"
-          error={formState.errors.email?.message}
-          {...register('email')}
-        />
-        <Input
-          label="Mật khẩu"
-          type="password"
-          autoComplete="new-password"
-          hint="Mật khẩu tối thiểu 8 ký tự."
-          error={formState.errors.password?.message}
-          {...register('password')}
-        />
-        <ErrorMessage message={formState.errors.root?.message} />
-        <Button type="submit" loading={isSubmitting}>
-          Tạo tài khoản
-        </Button>
-      </form>
+      <div className="space-y-4">
+        <GoogleSignInButton disabled={isSubmitting} />
+        <div className="relative py-1 text-center text-xs font-medium uppercase tracking-wide text-slate-400">
+          <span className="relative z-10 bg-white px-3">hoặc</span>
+          <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-slate-200" />
+        </div>
+        <form className="space-y-4" onSubmit={onSubmit}>
+          <Input
+            label="Họ và tên"
+            autoComplete="name"
+            error={formState.errors.fullName?.message}
+            {...register('fullName')}
+          />
+          <Input
+            label="Username"
+            autoComplete="username"
+            hint="3-30 ký tự, chỉ gồm chữ, số, _ và ."
+            error={formState.errors.username?.message}
+            {...register('username')}
+          />
+          <Input
+            label="Email"
+            type="email"
+            autoComplete="email"
+            error={formState.errors.email?.message}
+            {...register('email')}
+          />
+          <Input
+            label="Mật khẩu"
+            type="password"
+            autoComplete="new-password"
+            hint="Mật khẩu tối thiểu 8 ký tự."
+            error={formState.errors.password?.message}
+            {...register('password')}
+          />
+          <ErrorMessage message={formState.errors.root?.message} />
+          <Button type="submit" loading={isSubmitting}>
+            Tạo tài khoản
+          </Button>
+        </form>
+      </div>
     </AuthLayout>
   )
 }

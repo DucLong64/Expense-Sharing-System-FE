@@ -21,6 +21,18 @@ export function useLoginForm() {
       await login(values)
       navigate('/', { replace: true })
     } catch (error) {
+      if (error instanceof ApiError && error.code === 'EMAIL_NOT_VERIFIED') {
+        const emailMatch = error.message.match(/:\s*(\S+)\s*$/)
+        const email = emailMatch?.[1] ?? ''
+        showToast('Email chưa được xác thực. Vui lòng nhập mã OTP.')
+        navigate(
+          email
+            ? `/verify-email?email=${encodeURIComponent(email)}`
+            : '/verify-email',
+          { replace: true },
+        )
+        return
+      }
       const message =
         error instanceof ApiError ? error.message : 'Không thể đăng nhập. Vui lòng thử lại.'
       form.setError('root', { message })

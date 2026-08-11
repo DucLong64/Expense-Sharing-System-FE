@@ -19,7 +19,8 @@ export function useRegisterForm() {
   const onSubmit = form.handleSubmit(async (values) => {
     try {
       await registerUser(values)
-      navigate('/', { replace: true })
+      showToast('Đăng ký thành công. Vui lòng nhập mã OTP đã gửi tới email.', 'success')
+      navigate(`/verify-email?email=${encodeURIComponent(values.email)}`, { replace: true })
     } catch (error) {
       const message =
         error instanceof ApiError ? error.message : 'Không thể đăng ký. Vui lòng thử lại.'

@@ -7,7 +7,16 @@ import {
   type ReactNode,
 } from 'react'
 import * as authApi from '@/features/auth/api/auth.api'
-import type { LoginRequest, RegisterRequest } from '@/features/auth/types/auth.types'
+import type {
+  CompleteGoogleProfileRequest,
+  LoginRequest,
+  RegisterRequest,
+  VerifyEmailRequest,
+} from '@/features/auth/types/auth.types'
+import {
+  clearGoogleOnboardingToken,
+  setGoogleOnboardingToken,
+} from '@/features/auth/utils/google-onboarding-storage'
 import {
   clearTokens,
   getRefreshToken,
@@ -19,6 +28,9 @@ interface AuthContextValue {
   isAuthenticated: boolean
   login: (payload: LoginRequest) => Promise<void>
   register: (payload: RegisterRequest) => Promise<void>
+  verifyEmail: (payload: VerifyEmailRequest) => Promise<void>
+  loginWithGoogle: (idToken: string) => Promise<'authenticated' | 'needs_username'>
+  completeGoogleProfile: (payload: CompleteGoogleProfileRequest) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -34,7 +46,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const register = useCallback(async (payload: RegisterRequest) => {
-    const tokens = await authApi.register(payload)
+    await authApi.register(payload)
+  }, [])
+
+  const verifyEmail = useCallback(async (payload: VerifyEmailRequest) => {
+    const tokens = await authApi.verifyEmail(payload)
+    setTokens(tokens.accessToken, tokens.refreshToken)
+    setAuthenticated(true)
+  }, [])
+
+  const loginWithGoogle = useCallback(async (idToken: string) => {
+    const result = await authApi.googleLogin(idToken)
+    if (result.needsUsername) {
+      if (!result.onboardingToken) {
+        throw new Error('Missing Google onboarding token.')
+      }
+      setGoogleOnboardingToken(result.onboardingToken)
+      return 'needs_username' as const
+    }
+    if (!result.accessToken || !result.refreshToken) {
+      throw new Error('Missing auth tokens from Google login.')
+    }
+    clearGoogleOnboardingToken()
+    setTokens(result.accessToken, result.refreshToken)
+    setAuthenticated(true)
+    return 'authenticated' as const
+  }, [])
+
+  const completeGoogleProfile = useCallback(async (payload: CompleteGoogleProfileRequest) => {
+    const tokens = await authApi.completeGoogleProfile(payload)
+    clearGoogleOnboardingToken()
     setTokens(tokens.accessToken, tokens.refreshToken)
     setAuthenticated(true)
   }, [])
@@ -49,12 +90,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
     clearTokens()
+    clearGoogleOnboardingToken()
     setAuthenticated(false)
   }, [])
 
   const value = useMemo(
-    () => ({ isAuthenticated: authenticated, login, register, logout }),
-    [authenticated, login, register, logout],
+    () => ({
+      isAuthenticated: authenticated,
+      login,
+      register,
+      verifyEmail,
+      loginWithGoogle,
+      completeGoogleProfile,
+      logout,
+    }),
+    [authenticated, login, register, verifyEmail, loginWithGoogle, completeGoogleProfile, logout],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
