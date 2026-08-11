@@ -52,18 +52,9 @@ export function LoginPage() {
             </Link>
           </div>
           <ErrorMessage message={formState.errors.root?.message} />
-          <Button type="submit" loading={isSubmitting}>
+          <Button type="submit" loading={isSubmitting} className="w-full">
             Đăng nhập
           </Button>
-          {/*<p className="text-center text-sm text-slate-500">*/}
-          {/*  Chưa nhận OTP?{' '}*/}
-          {/*  <Link*/}
-          {/*    to="/verify-email"*/}
-          {/*    className="font-semibold text-emerald-600 hover:text-emerald-700"*/}
-          {/*  >*/}
-          {/*    Xác thực email*/}
-          {/*  </Link>*/}
-          {/*</p>*/}
         </form>
       </div>
     </AuthLayout>
