@@ -55,15 +55,15 @@ export function LoginPage() {
           <Button type="submit" loading={isSubmitting}>
             Đăng nhập
           </Button>
-          <p className="text-center text-sm text-slate-500">
-            Chưa nhận OTP?{' '}
-            <Link
-              to="/verify-email"
-              className="font-semibold text-emerald-600 hover:text-emerald-700"
-            >
-              Xác thực email
-            </Link>
-          </p>
+          {/*<p className="text-center text-sm text-slate-500">*/}
+          {/*  Chưa nhận OTP?{' '}*/}
+          {/*  <Link*/}
+          {/*    to="/verify-email"*/}
+          {/*    className="font-semibold text-emerald-600 hover:text-emerald-700"*/}
+          {/*  >*/}
+          {/*    Xác thực email*/}
+          {/*  </Link>*/}
+          {/*</p>*/}
         </form>
       </div>
     </AuthLayout>
